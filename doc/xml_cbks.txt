@@ -1,0 +1,95 @@
+*xml_cbks.txt* Plugin to extend xmledit plugin for arbitrary XML formats
+
+For instructions on installing this file, type
+        :help add-local-help
+inside Vim.
+
+This script extends the functionality of the excellent xmledit plugin.
+xmledit gives you a single global callback for inserting attributes,
+XmlAttribCallback.  The suggestion is that this method will dispatch based
+on which tag is received.  The script provides a hook that will set the
+variable b:xml_doctype when loaded (via the function XmlFindDocType).  Then
+it provides a generic XmlAttribCallback which does the following:
+  1.  Looks for a file called $VIMXMLEDITCALLBACKS/{b:xml_doctype}.vim
+  2.  If that file exists and hasn't already been loaded, it is sourced
+This file is expected to provide a function called
+XmlAttribCallback_{b:xml_doctype}.  This function is called if it exists,
+passing the xml_tag as the argument.
+
+The intent is so that you can have a different callback for each doctype
+(schema) which will automatically be available when you edit an XML file of a
+specified type.  The plugin also provides a way to provide any doctype
+specific functionality automatically (you can put anything in the sourced
+script).   It is almost like a secondary ftplugin for xml.
+
+Maintainer:  Brett Williams <brett_williams@agilent.com>
+
+Mappings:  
+  There are no mappings.  
+
+Variables: 
+  There is one global variable, $VIMXMLEDITCALLBACKS, which defines where the
+  .vim files for each different type are.  
+  
+  In order to work, this plugin depends on b:xml_doctype, which must be set
+  when editing a file of type xml.  If it is not set, there is a function
+  provided which will attempt to parse the DTD DOCTYPE declaration to set it.
+  If that function isn't working, it can be set some other way (via an xml
+  ftplugin, or even directly via let).  
+
+Commands:
+  There are currently no commands.  There is one autocmd, which calls
+  s:XmlLoadDoctypeScript() whenever a filetype of 'xml' is set.
+  s:XmlLoadDoctypeScript() calls XmlFindDocType() to set b:xml_doctype (if it
+  isn't already set), which is then used in XmlAttribCallback() to dispatch to
+  the invidual script functions.
+
+Functions:
+  The plugin provides XmlAttribCallback() (called by the xmledit package).
+  Other functions are script local.
+
+===============================================================================
+                                                           *xml_cbks-settings*
+This plugin currently doesn't have any settings.
+
+===============================================================================
+                                                           *xml_cbks-example*
+
+Create a directory and set $VIMXMLEDITCALLBACKS to it (by default it will look
+in ~/.vim/xml_cbks.
+
+Let's say you want to define some callbacks to insert attributes for editing
+Docbook.  I realize this is a poor example as attributes don't really seem to
+be a big part of Docbook, but the idea is here.
+
+
+You then would write a file, docbookx.vim, and put it in $VIMXMLEDITCALLBACKS.
+
+The contents of the file might be something like:
+
+function XmlAttribCallback_docbookx(xml_tag)
+  if a:xml_tag == "section"
+    return "foo=\"bar\""
+  endif
+  return ""
+endfunction
+
+Note that before you insert a section tag and have it auto insert foo="bar",
+you would need to have set b:xml_doctype.
+
+Out of the box, this plugin will attempt to set it if it isn't set by parsing
+the header.
+
+Your xml file might have a header like:
+
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"/opt/ictools/docbook/xml-dtd/docbookx.dtd">
+
+In this case the default function would work as it would find be able to
+parse such a declaration.
+
+Note that for a brand-new file you would need to set b:xml_doctype
+manually or via a smarter function than that supplied by default.
+
+vim:tw=78:fo=tcq2:ft=help:norl

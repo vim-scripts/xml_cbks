@@ -1,0 +1,20 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=662
+
+This script extends the functionality of the excellent xmledit plugin.
+xmledit gives you a single global callback for inserting attributes,
+XmlAttribCallback.  The suggestion is that this method will dispatch based
+on which tag is received.  The script provides a hook that will set the
+variable b:xml_doctype when loaded (via the function XmlFindDocType).  Then
+it provides a generic XmlAttribCallback which does the following:
+  1.  Looks for a file called $VIMXMLEDITCALLBACKS/{b:xml_doctype}.vim
+  2.  If that file exists and hasn&#039t already been loaded, it is sourced
+This file is expected to provide a function called
+XmlAttribCallback_{b:xml_doctype}.  This function is called if it exists,
+passing the xml_tag as the argument.
+
+The intent is so that you can have a different callback for each doctype (schema) which will automatically be available when you edit an XML file of a
+specified type.  The plugin also provides a way to provide any doctype
+specific functionality automatically (you can put anything in the sourced
+script).   It is almost like a secondary ftplugin for xml.
+
+Note:  This is my first vim script (I&#039ve been using vim for less than 3 weeks) so any suggestions for improvement are very welcome.
