@@ -60,8 +60,8 @@ function s:XmlLoadDoctypeScript()
     if filereadable(s:xml_func_file)
       execute "source ".s:xml_func_file
     endif
+    unlet s:xml_func_file
   endif
-  unlet s:xml_func_file
 endfunction
 
 " This function is quite lame.  It can be overridden--the only intent is to
@@ -85,18 +85,18 @@ function s:XmlFindDocType()
       let s:match_end = matchend(s:line, s:pat)
       "skip leading / and trailing .dtd
       let b:xml_doctype = strpart(s:line, s:match_pos+1, s:match_end-5-s:match_pos)
+      unlet s:match_end
       echom "Setting xml_doctype to " . b:xml_doctype
       break
     endif
     if s:i == 10
       let b:xml_doctype = "unknown"
     endif
+    unlet s:line
+    unlet s:pat
+    unlet s:match_pos
   endwhile 
   unlet s:i
-  unlet s:line
-  unlet s:pat
-  unlet s:match_pos
-  unlet s:match_end
 endfunction
 
 " This function is called by the xmledit package whenever a tag is inserted.
